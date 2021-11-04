@@ -1,7 +1,7 @@
-import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
+import {Getter, inject} from '@loopback/core';
+import {BelongsToAccessor, DefaultCrudRepository, repository} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Usuario, UsuarioRelations, Rol} from '../models';
+import {Rol, Usuario, UsuarioRelations} from '../models';
 import {RolRepository} from './rol.repository';
 
 export class UsuarioRepository extends DefaultCrudRepository<
@@ -10,13 +10,13 @@ export class UsuarioRepository extends DefaultCrudRepository<
   UsuarioRelations
 > {
 
-  public readonly tiene_un: HasOneRepositoryFactory<Rol, typeof Usuario.prototype._id>;
+  public readonly pertenece_rol: BelongsToAccessor<Rol, typeof Usuario.prototype._id>;
 
   constructor(
     @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RolRepository') protected rolRepositoryGetter: Getter<RolRepository>,
   ) {
     super(Usuario, dataSource);
-    this.tiene_un = this.createHasOneRepositoryFactoryFor('tiene_un', rolRepositoryGetter);
-    this.registerInclusionResolver('tiene_un', this.tiene_un.inclusionResolver);
+    this.pertenece_rol = this.createBelongsToAccessorFor('pertenece_rol', rolRepositoryGetter,);
+    this.registerInclusionResolver('pertenece_rol', this.pertenece_rol.inclusionResolver);
   }
 }
